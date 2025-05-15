@@ -35,7 +35,7 @@ At least, you need to extend the local host file with the following entries:
 
 == Installation
 
-If you want to use the *Enterprise Edition* of Kong Ingress Controller, you need to copy your Kong license file to the `cluster-config/kong-enterprise` directory.
+If you want to use the *Enterprise Edition* of Kong Ingress Controller, you need to copy your Kong license file to the `cluster-config/kong-ingress-controller` directory.
 The license file should be named `license.json`.
 
 If you don't put the license file in the directory, the demo environment will use the *Community Edition* of Kong Ingress Controller.
@@ -43,7 +43,7 @@ If you don't put the license file in the directory, the demo environment will us
 To install the demo environment, run the following command:
 
 ```bash
-bash ./install.sh   
+bash ./install.sh
 ```
 
 Issuing the command will create a new K3d cluster and creates the necessary resources in the cluster:
@@ -64,7 +64,7 @@ To test the environment, run the following command:
 http https://httpbin.example.com:8081/anything --verify=no
 ```
 
-or 
+or
 
 ```bash
 curl -k https://httpbin.example.com:8081/anything
@@ -102,7 +102,7 @@ This will create the following components:
 
 * Secret Entry in HashiCorp Vault for Redis Password
 * Kong Vault CRD configured with HasiCorp Vault
-* Kong Proxy Cache Advanced Plugin configured with Kong Vault and Redis Backend 
+* Kong Proxy Cache Advanced Plugin configured with Kong Vault and Redis Backend
 
 In this setup, the Redis password is stored in HashiCorp Vault and is used by the Kong Rate Limiting Advanced Plugin to connect to the Redis Cluster.
 
