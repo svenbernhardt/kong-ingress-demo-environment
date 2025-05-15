@@ -1,0 +1,7 @@
+charts/
+
+.DS_Store
+
+license.json
+init-keys.json
+kong-vault.yaml

@@ -1,0 +1,75 @@
+ingress:
+  controller:
+    env:
+      log_level: debug
+    ingressController:
+      adminApi:
+        tls:
+          client:
+            enabled: true
+        repository: kong/kubernetes-ingress-controller
+        tag: 3.4.4
+    postgresql:
+      enabled: false
+
+  gateway:
+    env:
+      log_level: debug
+      admin_gui_url: https://kong-manager.example.com:8081
+      admin_api_uri: https://kong-admin.example.com:8081
+
+    autoscaling:
+        enabled: true
+        minReplicas: 2
+        maxReplicas: 2
+    image:
+      repository: kong/kong-gateway
+      tag: "3.10.0.0"
+    proxy:
+      type: LoadBalancer
+    manager:
+      enabled: true
+      type: ClusterIP
+      http:
+        enabled: false
+      tls:
+        enabled: true
+      ingress:
+        enabled: false
+        ingressClassName: kong
+    admin:
+      enabled: true
+      type: ClusterIP
+      http:
+        enabled: false
+      tls:
+        enabled: true
+      ingress:
+        enabled: false
+        ingressClassName: kong # required. The name of the flatpak to manage. When used with I(state=present), I(name) can be specified as an C(http(s)) URL to a C(flatpakref) file or the unique reverse DNS name that identifies a flatpak. When supplying a reverse DNS name, you can use the I(remote) option to specify on what remote to look for the flatpak. An example for a reverse DNS name is C(org.gnome.gedit). When used with I(state=absent), it is recommended to specify the name in the reverse DNS format. When supplying an C(http(s)) URL with I(state=absent), the module will try to match the installed flatpak based on the name of the flatpakref to remove it. However, there is no guarantee that the names of the flatpakref file and the reverse DNS name of the installed flatpak do match.
+    
+    certificates:
+      enabled: false
+      issuer: "vault-issuer"
+      proxy:
+        enabled: true
+        commonName: "*.example.com"
+        # Remove the "[]" and uncomment/change the examples to add SANs
+        dnsNames: []
+      admin:
+        enabled: true
+        commonName: "kong-admin.example.com"
+        # Remove the "[]" and uncomment/change the examples to add SANs
+        dnsNames: 
+          - "kong-manager.kong.example"
+      # Set cluster.enabled true to issue kong hybrid mtls certificate with cert-manager
+      cluster:
+        enabled: true
+        # Issuers used by the control and data plane releases must match for this certificate.
+        issuer: ""
+        clusterIssuer: ""
+        commonName: "kong_clustering.example.com"
+        dnsNames: []
+
+    postgresql:
+      enabled: false

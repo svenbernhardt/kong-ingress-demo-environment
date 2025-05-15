@@ -1,0 +1,18 @@
+apiVersion: configuration.konghq.com/v1alpha1
+kind: KongVault
+metadata:
+  name: hcv-vault
+  namespace: kong
+  annotations:
+    kubernetes.io/ingress.class: kong
+spec:
+  backend: hcv
+  prefix: hashicorp-vault
+  description: Storing secrets in HashiCorp Vault
+  config:
+    host: vault.vault.svc.cluster.local
+    token: ${VAULT_ROOT_TOKEN}
+    kv: v2
+    mount: secret
+    port: 8200
+    protocol: http

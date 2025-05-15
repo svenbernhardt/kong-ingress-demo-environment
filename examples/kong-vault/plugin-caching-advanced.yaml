@@ -1,0 +1,23 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: proxy-cache-advanced
+  namespace: demo
+  annotations:
+    kubernetes.io/ingress.class: kong
+plugin: proxy-cache-advanced
+config:
+  response_code:
+  - 200
+  request_method:
+  - GET
+  content_type:
+  - text/plain
+  - application/json
+  cache_ttl: 300
+  strategy: redis
+  redis:
+    host: redis-master.redis.svc.cluster.local
+    port: 6379
+    keepalive_pool_size: 50
+    password: '{vault://hashicorp-vault/redis/password}'

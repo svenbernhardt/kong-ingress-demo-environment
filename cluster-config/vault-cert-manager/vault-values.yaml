@@ -1,0 +1,23 @@
+---
+injector:
+  enabled: false
+server:
+  dev:
+    enabled: false
+  ingress:
+    enabled: true
+    ingressClassName: "kong"
+    annotations:
+      cert-manager.io/issuer: "vault-issuer"
+      cert-manager.io/common-name: "vault.example.com"
+    hosts:
+      - host: vault.example.com
+        paths: []
+  statefulSet:
+    securityContext:
+      container:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+        seccompProfile:
+          type: "RuntimeDefault"

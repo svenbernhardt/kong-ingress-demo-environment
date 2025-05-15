@@ -1,0 +1,130 @@
+= Kong Ingress Controller Demo Environment
+
+The installation scripts are based on ideas from the following project: https://github.com/FabianHardt/k3d-bootstrap-cluster by https://github.com/FabianHardt[Fabian Hardt].
+
+This repository focuses on Kong Ingress Controller and is designed to showcase its capabilities.
+It provides a simple setup for testing and demonstrating the features of the controller.
+
+Besides the Kong Ingress Controller, this demo environment also includes the following components:
+
+* Hashicorp Vault
+* Cert-manager
+* Redis
+
+The demo environment is setup with K3d as Kubernetes distribution and is designed to be run on a local machine using Docker.
+
+== Prerequisites
+
+The following tools are required to run the demo environment:
+
+* Docker
+* K3d
+* kubectl
+* Helm
+* jq
+* yq
+* envsubst
+
+Furthermore your local host file should be configured to resolve the domain `example.com`.
+At least, you need to extend the local host file with the following entries:
+
+```bash
+127.0.0.1   httpbin.example.com
+127.0.0.1   vault.example.com
+```
+
+== Installation
+
+If you want to use the *Enterprise Edition* of Kong Ingress Controller, you need to copy your Kong license file to the `cluster-config/kong-enterprise` directory.
+The license file should be named `license.json`.
+
+If you don't put the license file in the directory, the demo environment will use the *Community Edition* of Kong Ingress Controller.
+
+To install the demo environment, run the following command:
+
+```bash
+bash ./install.sh   
+```
+
+Issuing the command will create a new K3d cluster and creates the necessary resources in the cluster:
+
+* HashiCorp Vault with configured PKI and Secrets engine
+** Certificate Management for Ingress definitions
+** Secrets Management to be used with Kong Vault
+* Cert-manager with configured ClusterIssuer (based on Vault PKI)
+* Redis with configured Redis Cluster
+* Kong Ingress Controller with Gateway API enabled
+* HTTPbin Test Application
+
+== Test the environment
+
+To test the environment, run the following command:
+
+```bash
+http https://httpbin.example.com:8081/anything --verify=no
+```
+
+or 
+
+```bash
+curl -k https://httpbin.example.com:8081/anything
+```
+
+[NOTE]
+====
+If you add the Root CA configured in Vault to your system truststore, the connections should be secured correctly.
+You can find the Root CA certificate under: cluster-config/vault-cert-manager/root-certs/rootCACert.pem.
+====
+
+== Showcases
+
+In this section, we will showcase the features of the Kong Ingress Controller.
+
+=== Kong Vault usage
+
+[NOTE]
+====
+The Kong Vault integration with Secret Backends is only available in the Enterprise Edition of Kong Ingress Controller.
+
+Kong Vault configured with Environment Variables is also available in the Community Edition of Kong Ingress Controller.
+====
+
+The Kong Vault feature allows you to use as Secret Backend like HashiCorp Vault to replace sensitive clear-text information from your Kong configuration.
+
+This demo can easily be setup with the following command:
+
+```bash
+cd examples/kong-vault
+bash ./setup.sh
+```
+
+This will create the following components:
+
+* Secret Entry in HashiCorp Vault for Redis Password
+* Kong Vault CRD configured with HasiCorp Vault
+* Kong Proxy Cache Advanced Plugin configured with Kong Vault and Redis Backend 
+
+In this setup, the Redis password is stored in HashiCorp Vault and is used by the Kong Rate Limiting Advanced Plugin to connect to the Redis Cluster.
+
+To test the setup, run the following command:
+
+```bash
+kubectl exec -n kong -it deployment/kong-gateway -c proxy -- kong vault get {vault://hashicorp-vault/redis/password}
+```
+
+If the setup is successful, you should see the Redis password in the output.
+
+When now testing the HTTPbin application, you should see that the Redis password is fetched form HashiCorp Vault in the Kong logs.
+Furthermore you can see the working Proxy Cache advanced plugin, when testing the API.
+
+Analogous to the Proxy Cache advanced plugin, you can also HashiCorp Vault to store other sensitive information, like the Client Secret in the OIDC-Plugin or sensitive `kong.conf` values.
+
+More details can be found in the Kong documentation: https://developer.konghq.com/gateway/entities/vault/#what-can-be-stored-as-a-secret
+
+== Uninstall
+
+To uninstall the demo environment, run the following command:
+
+```bash
+bash ./uninstall.sh
+```
