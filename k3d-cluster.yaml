@@ -37,15 +37,10 @@ registries:
     hostPort: "5002"
   config: |
     mirrors:
-      registry-demo.127-0-0-1.nip.io:
+      rregistry.example.com:
         endpoint:
-          - http://registry-demo.127-0-0-1.nip.io:5002
+          - http://registry.example.com:5002
 ### end generated section ###
-volumes:
-  - volume: /Users/svenbernhardt/projects/oc-internal/k3d-bootstrap-cluster/k3dvol:/k3dvol
-    nodeFilters:
-      - servers:*
-      - agents:*
 options:
   k3d:
     wait: true
