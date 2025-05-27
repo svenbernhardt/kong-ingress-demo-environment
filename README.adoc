@@ -48,12 +48,13 @@ bash ./install.sh
 
 Issuing the command will create a new K3d cluster and creates the necessary resources in the cluster:
 
-* HashiCorp Vault with configured PKI and Secrets engine
+* *HashiCorp Vault* with configured PKI and Secrets engine
 ** Certificate Management for Ingress definitions
 ** Secrets Management to be used with Kong Vault
-* Cert-manager with configured ClusterIssuer (based on Vault PKI)
-* Redis with configured Redis Cluster
-* Kong Ingress Controller with Gateway API enabled
+* *Cert-manager* with configured ClusterIssuer (based on Vault PKI)
+* *HashiCorp Vault Operator* is installed to inject Secret information from HashiCorp Vault
+* *Redis* with configured Redis Cluster
+* *Kong Ingress Controller* with Gateway API enabled
 * HTTPbin Test Application
 
 == Test the environment
@@ -80,7 +81,7 @@ You can find the Root CA certificate under: cluster-config/vault-cert-manager/ro
 
 In this section, we will showcase the features of the Kong Ingress Controller.
 
-=== Kong Vault usage
+=== Kong Vault usage with Secret Backend
 
 [NOTE]
 ====
@@ -120,6 +121,35 @@ Furthermore you can see the working Proxy Cache advanced plugin, when testing th
 Analogous to the Proxy Cache advanced plugin, you can also HashiCorp Vault to store other sensitive information, like the Client Secret in the OIDC-Plugin or sensitive `kong.conf` values.
 
 More details can be found in the Kong documentation: https://developer.konghq.com/gateway/entities/vault/#what-can-be-stored-as-a-secret
+
+=== Kong Vault usage with Environment Variables
+
+The Kong Vault feature allows you to use Environment Variables as Secret Backend to replace sensitive clear-text information from your Kong configuration.
+
+This demo can easily be setup with the following command:
+```bash
+cd examples/kong-vault-environment
+bash ./setup.sh
+```
+
+This will create the following components:
+
+* Secret Entries in HashiCorp Vault for Redis Password and an example OIDC Client Secret
+* Kong Vault CRD configured with Environment Variables
+* Kong Proxy Cache Advanced Plugin configured with Kong Vault and Redis Backend
+* HashiCorp Vault Authentication Configuration
+* StaticVaultSecret CRD 
+
+In this setup, the Redis password and the OIDC Client Secret are stored in Environment Variables.
+The Secret `mysecretskv` created by the StaticVaultSecret CRD is used to inject the secrets into the Kong Gateway Pods (see respective configuration in `cluster-config/kong-ingress-controller/values.yaml`).
+
+[NOTE]
+====
+Changes in Secrets in the StaticVaultSecret CRD will not be reflected in the Kong Gateway Pods.
+You need to restart the Kong Gateway Pods to apply the changes.
+====
+
+This configuration is also compatible with the Community Edition of Kong Ingress Controller as it uses the Kong Vault feature with Environment Variables.
 
 == Uninstall
 

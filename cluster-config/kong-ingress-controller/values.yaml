@@ -18,6 +18,10 @@ ingress:
       admin_gui_url: https://kong-manager.example.com:8081
       admin_api_uri: https://kong-admin.example.com:8081
 
+    envFrom:
+      - secretRef:
+          name: mysecretskv
+
     autoscaling:
         enabled: true
         minReplicas: 2

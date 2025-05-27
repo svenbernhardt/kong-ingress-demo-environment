@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: vault-secrets-operator-system
+  name: demo-operator
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: static-auth
+  namespace: kong
+spec:
+  method: kubernetes
+  mount: kong-auth-mount
+  kubernetes:
+    role: role1
+    serviceAccount: kong-gateway
+    audiences:
+      - vault
