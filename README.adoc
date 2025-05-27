@@ -10,6 +10,8 @@ Besides the Kong Ingress Controller, this demo environment also includes the fol
 * Hashicorp Vault
 * Cert-manager
 * Redis
+* HashiCorp Vault Secrets Operator
+* HTTPBin Test Application
 
 The demo environment is setup with K3d as Kubernetes distribution and is designed to be run on a local machine using Docker.
 
@@ -52,10 +54,10 @@ Issuing the command will create a new K3d cluster and creates the necessary reso
 ** Certificate Management for Ingress definitions
 ** Secrets Management to be used with Kong Vault
 * *Cert-manager* with configured ClusterIssuer (based on Vault PKI)
-* *HashiCorp Vault Operator* is installed to inject Secret information from HashiCorp Vault
+* *HashiCorp Vault Secrets Operator* is installed to inject Secret information from HashiCorp Vault
 * *Redis* with configured Redis Cluster
 * *Kong Ingress Controller* with Gateway API enabled
-* HTTPbin Test Application
+* HTTPBin Test Application
 
 == Test the environment
 
@@ -138,7 +140,7 @@ This will create the following components:
 * Kong Vault CRD configured with Environment Variables
 * Kong Proxy Cache Advanced Plugin configured with Kong Vault and Redis Backend
 * HashiCorp Vault Authentication Configuration
-* StaticVaultSecret CRD 
+* HashiCorp Vault Secrets Operator StaticVaultSecret CRD 
 
 In this setup, the Redis password and the OIDC Client Secret are stored in Environment Variables.
 The Secret `mysecretskv` created by the StaticVaultSecret CRD is used to inject the secrets into the Kong Gateway Pods (see respective configuration in `cluster-config/kong-ingress-controller/values.yaml`).
