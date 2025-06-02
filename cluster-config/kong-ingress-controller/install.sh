@@ -24,6 +24,7 @@ rawLicenseString: '$(cat "${LICENSE_FILE}")'
 " | kubectl apply -f -
 fi
 
+kubectl delete secret mysecretskv -n kong || true
 kubectl create secret generic mysecretskv --from-literal=test=test -n kong
 
 echo "Waiting for Kong Ingress Controller Pods to be ready..."
