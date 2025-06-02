@@ -10,7 +10,7 @@ kubectl apply -f template/gateway.yaml
 kubectl apply -f template/sa-token-secret.yaml
 
 helm dependency build .
-helm upgrade --install kong . --values values.yaml --namespace kong --create-namespace
+helm upgrade --install kong . --values values.yaml --namespace kong --create-namespace --wait
 
 if [[ -f ${LICENSE_FILE} ]]; then
 echo "${LICENSE_FILE} exists. Using it!"
