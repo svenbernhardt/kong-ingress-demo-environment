@@ -24,5 +24,7 @@ rawLicenseString: '$(cat "${LICENSE_FILE}")'
 " | kubectl apply -f -
 fi
 
+kubectl create secret generic mysecretskv --from-literal=test=test -n kong
+
 echo "Waiting for Kong Ingress Controller Pods to be ready..."
 kubectl -n kong wait --for=condition=Available=true --timeout=120s deployment/kong-gateway
