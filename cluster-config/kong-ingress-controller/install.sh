@@ -7,6 +7,7 @@ kubectl create namespace kong || true
 
 kubectl apply -f template/gateway-class.yaml
 kubectl apply -f template/gateway.yaml
+kubectl apply -f template/sa-token-secret.yaml
 
 helm dependency build .
 helm upgrade --install kong . --values values.yaml --namespace kong --create-namespace

@@ -60,6 +60,18 @@ kubectl -n vault exec --stdin=true --tty=true vault-0 -- vault write auth/kubern
     policies=pki \
     ttl=20m
 
+# For Kong Vault integration
+kubectl -n vault exec --stdin=true vault-0 -- vault policy write kv - <<EOF
+path "secret*"                              { capabilities = ["read", "list"] }
+EOF
+
+kubectl -n vault exec --stdin=true --tty=true vault-0 -- vault write auth/kubernetes/role/kong \
+    bound_service_account_names=kong-gateway \
+    bound_service_account_namespaces=kong \
+    policies=kv \
+    ttl=20m
+############################
+
 helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace \
   --set crds.enabled=true \
   --set config.apiVersion="controller.config.cert-manager.io/v1alpha1" \
