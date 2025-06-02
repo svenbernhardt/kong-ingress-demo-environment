@@ -9,15 +9,13 @@ helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
-helm upgrade --install vault hashicorp/vault --values "vault-values.yaml" --namespace vault --create-namespace
-
-kubectl wait --for=jsonpath='{.status.phase}'=Running pod vault-0 -n vault --timeout=300s || exit 1
-# echo "Waiting 60 seconds!"
-# sleep 60
-
 if kubectl get po vault-0 -n vault ; then
   echo "Vault already exists. Skipping bootstrapping..."
 else
+  helm upgrade --install vault hashicorp/vault --values "vault-values.yaml" --namespace vault --create-namespace
+
+  kubectl wait --for=jsonpath='{.status.phase}'=Running pod vault-0 -n vault --timeout=300s || exit 1
+
   kubectl -n vault exec vault-0 -- vault operator init -key-shares=1 -key-threshold=1 \
         -format=json > init-keys.json
   VAULT_UNSEAL_KEY=$(cat init-keys.json | jq -r ".unseal_keys_b64[]")
