@@ -1,9 +1,12 @@
 #!/bin/bash
 set -o errexit
 
-k3d cluster create -c k3d-cluster.yaml
-
-echo ">>> Cluster created."
+if k3d cluster list kong-demo &>/dev/null; then
+  echo ">>> Cluster 'kong-demo' already exists. Skipping creation."
+else
+  k3d cluster create -c k3d-cluster.yaml
+  echo ">>> Cluster created."
+fi
 
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
 
@@ -28,4 +31,3 @@ kubectl apply -f ingress-definitions/ingress-httpbin.yaml
 
 echo ">>> Installing HashiCorp Vault Operator..."
 helm upgrade --install vault-secrets-operator ./cluster-config/vault-secrets-operator -n vault-secrets-operator-system --create-namespace --wait
-

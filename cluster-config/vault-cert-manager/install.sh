@@ -12,8 +12,7 @@ helm repo update
 helm upgrade --install vault hashicorp/vault --values "vault-values.yaml" --namespace vault --create-namespace
 
 kubectl wait --for=jsonpath='{.status.phase}'=Running pod vault-0 -n vault --timeout=300s || exit 1
-# echo "Waiting 60 seconds!"
-# sleep 60
+
 kubectl -n vault exec vault-0 -- vault operator init -key-shares=1 -key-threshold=1 \
       -format=json > init-keys.json
 VAULT_UNSEAL_KEY=$(cat init-keys.json | jq -r ".unseal_keys_b64[]")
@@ -59,6 +58,18 @@ kubectl -n vault exec --stdin=true --tty=true vault-0 -- vault write auth/kubern
     bound_service_account_namespaces=cert-manager \
     policies=pki \
     ttl=20m
+
+# For Kong Vault integration
+kubectl -n vault exec --stdin=true vault-0 -- vault policy write kv - <<EOF
+path "secret*"                              { capabilities = ["read", "list"] }
+EOF
+
+kubectl -n vault exec --stdin=true --tty=true vault-0 -- vault write auth/kubernetes/role/kong \
+    bound_service_account_names=kong-gateway \
+    bound_service_account_namespaces=kong \
+    policies=kv \
+    ttl=20m
+############################
 
 helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace \
   --set crds.enabled=true \
