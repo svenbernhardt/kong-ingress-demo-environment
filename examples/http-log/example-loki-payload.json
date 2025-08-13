@@ -1,0 +1,15 @@
+{
+  "streams": [
+    {
+      "stream": {
+        "job": "randomjob"
+      },
+      "values": [
+        [
+          "1755028404000000000",
+          "TEST!"
+        ]
+      ]
+    }
+  ]
+}

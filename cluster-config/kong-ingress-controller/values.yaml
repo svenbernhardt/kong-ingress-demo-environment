@@ -4,9 +4,6 @@ ingress:
       log_level: info
     ingressController:
       adminApi:
-        tls:
-          client:
-            enabled: true
         repository: kong/kubernetes-ingress-controller
         tag: 3.4.4
     postgresql:
@@ -14,13 +11,12 @@ ingress:
 
   gateway:
     env:
-      log_level: info
+      log_level: debug
       admin_gui_url: https://kong-manager.example.com:8081
       admin_api_uri: https://kong-admin.example.com:8081
 
-    envFrom:
-      - secretRef:
-          name: mysecretskv
+    customEnv:
+      MY_SECRET_AUTH_TOKEN: Basic PLEASE_REPLACE_WITH_YOUR_AUTH_TOKEN
 
     autoscaling:
         enabled: true

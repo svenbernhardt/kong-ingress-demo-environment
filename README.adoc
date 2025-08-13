@@ -153,6 +153,27 @@ You need to restart the Kong Gateway Pods to apply the changes.
 
 This configuration is also compatible with the Community Edition of Kong Ingress Controller as it uses the Kong Vault feature with Environment Variables.
 
+=== Kong HTTP Log Plugin
+
+The Kong HTTP Log Plugin allows you to send logs to a remote HTTP endpoint, such as Grafana Loki.
+
+This demo can easily be setup with the following command:
+```bash
+cd examples/http-log
+bash ./setup.sh
+```
+
+This will create the following components:
+
+* Kong HTTP Log Plugin configured with Grafana Loki (Grafana Cloud) as the logging backend (should be replaced with your Logging backend)
+* Authorization header for Grafana Loki is configured with a sample authentication token
+* Content for the Authorization header is stored in Container Environment Variables and is referred to in the plugin configuration using the Kong Vault feature
+
+[NOTE]
+====
+Ideally you should use a secure way to store the Authorization token, like HashiCorp Vault or Kubernetes Secrets.
+====
+
 == Uninstall
 
 To uninstall the demo environment, run the following command:

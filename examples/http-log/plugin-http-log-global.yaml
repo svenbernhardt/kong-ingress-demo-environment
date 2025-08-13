@@ -1,0 +1,40 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongClusterPlugin
+metadata:
+  name: http-log
+  namespace: kong
+  annotations:
+    kubernetes.io/ingress.class: kong
+  labels:
+    global: 'true'
+config:
+  http_endpoint: https://logs-prod-013.grafana.net/loki/api/v1/push
+  headers:
+    Authorization: '{vault://my-env-vault/AUTH_TOKEN}'
+  method: POST
+  timeout: 3000
+  retry_count: 1
+  custom_fields_by_lua:
+    streams: |
+      local ts=string.format('%18.0f', os.time()*1000000000)
+      local log_payload = kong.log.serialize()
+      local request = log_payload['request']
+      local service = log_payload['service']
+      local response = log_payload['response']
+      local latencies = log_payload['latencies']
+      local t = {
+        {
+          stream = {gateway='total-latency', service=service['name']},
+          values={{ts, 'ip='..log_payload['client_ip']..' duration='..latencies['request']..'ms upstream_uri='..log_payload['upstream_uri']..' status='..response['status']}}
+        },
+        {
+          stream = {gateway='upstream-latency', service=service['name']},
+          values={{ts, 'ip='..log_payload['client_ip']..' duration='..latencies['proxy']..'ms upstream_uri='..log_payload['upstream_uri']..' status='..response['status']}}
+        },
+        {
+          stream = {gateway='gateway-latency', service=service['name']},
+          values={{ts, 'ip='..log_payload['client_ip']..' duration='..latencies['kong']..'ms upstream_uri='..log_payload['upstream_uri']..' status='..response['status']}}
+        }
+      }
+      return t
+plugin: http-log
